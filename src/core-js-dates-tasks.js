@@ -107,8 +107,19 @@ function getCountDaysInMonth(month, year) {
  * '2024-02-01T00:00:00.000Z', '2024-02-02T00:00:00.000Z'  => 2
  * '2024-02-01T00:00:00.000Z', '2024-02-12T00:00:00.000Z'  => 12
  */
-function getCountDaysOnPeriod(/* dateStart, dateEnd */) {
-  throw new Error('Not implemented');
+function getCountDaysOnPeriod(dateStart, dateEnd) {
+  const start = new Date(dateStart);
+  const end = new Date(dateEnd);
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    throw new Error('Invalid date');
+  }
+
+  const differenceInMilliseconds = end - start;
+  const daysDifference =
+    Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24)) + 1;
+
+  return daysDifference;
 }
 
 /**
@@ -128,8 +139,20 @@ function getCountDaysOnPeriod(/* dateStart, dateEnd */) {
  * '2024-02-02', { start: '2024-02-02', end: '2024-03-02' } => true
  * '2024-02-10', { start: '2024-02-02', end: '2024-03-02' } => true
  */
-function isDateInPeriod(/* date, period */) {
-  throw new Error('Not implemented');
+function isDateInPeriod(date, period) {
+  const targetDate = new Date(date);
+  const startDate = new Date(period.start);
+  const endDate = new Date(period.end);
+
+  if (
+    Number.isNaN(targetDate.getTime()) ||
+    Number.isNaN(startDate.getTime()) ||
+    Number.isNaN(endDate.getTime())
+  ) {
+    throw new Error('Invalid date format');
+  }
+
+  return targetDate >= startDate && targetDate <= endDate;
 }
 
 /**
@@ -143,8 +166,21 @@ function isDateInPeriod(/* date, period */) {
  * '1999-01-05T02:20:00.000Z' => '1/5/1999, 2:20:00 AM'
  * '2010-12-15T22:59:00.000Z' => '12/15/2010, 10:59:00 PM'
  */
-function formatDate(/* date */) {
-  throw new Error('Not implemented');
+function formatDate(date) {
+  const inputDate = new Date(date);
+
+  if (Number.isNaN(inputDate.getTime())) {
+    throw new Error('Invalid date format');
+  }
+
+  const day = String(inputDate.getUTCDate()).padStart(2, '0');
+  const month = String(inputDate.getUTCMonth() + 1).padStart(2, '0');
+  const year = String(inputDate.getUTCFullYear()).slice(-2);
+  const hours = String(inputDate.getUTCHours()).padStart(2, '0');
+  const minutes = String(inputDate.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(inputDate.getUTCSeconds()).padStart(2, '0');
+
+  return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
 }
 
 /**
@@ -159,8 +195,19 @@ function formatDate(/* date */) {
  * 12, 2023 => 10
  * 1, 2024 => 8
  */
-function getCountWeekendsInMonth(/* month, year */) {
-  throw new Error('Not implemented');
+function getCountWeekendsInMonth(month, year) {
+  let weekendsCount = 0;
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    const date = new Date(year, month - 1, day);
+    const dayOfWeek = date.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      weekendsCount += 1;
+    }
+  }
+
+  return weekendsCount;
 }
 
 /**
@@ -176,8 +223,23 @@ function getCountWeekendsInMonth(/* month, year */) {
  * Date(2024, 0, 31) => 5
  * Date(2024, 1, 23) => 8
  */
-function getWeekNumberByDate(/* date */) {
-  throw new Error('Not implemented');
+function getWeekNumberByDate(date) {
+  const inputDate = new Date(date);
+
+  if (Number.isNaN(inputDate.getTime())) {
+    throw new Error('Invalid date format');
+  }
+
+  const startOfYear = new Date(Date.UTC(inputDate.getFullYear(), 0, 1));
+  const dayOfWeek = startOfYear.getUTCDay() || 7;
+  const firstThursday = new Date(
+    Date.UTC(inputDate.getFullYear(), 0, 4 - (dayOfWeek - 1))
+  );
+  const diffInMilliseconds = inputDate.getTime() - firstThursday.getTime();
+  const diffInDays = Math.floor(diffInMilliseconds / (1000 * 60 * 60 * 24));
+  const weekNumber = Math.floor(diffInDays / 7) + 1;
+
+  return weekNumber;
 }
 
 /**
@@ -191,8 +253,27 @@ function getWeekNumberByDate(/* date */) {
  * Date(2024, 0, 13) => Date(2024, 8, 13)
  * Date(2023, 1, 1) => Date(2023, 9, 13)
  */
-function getNextFridayThe13th(/* date */) {
-  throw new Error('Not implemented');
+function getNextFridayThe13th(date) {
+  const inputDate = new Date(date);
+
+  if (Number.isNaN(inputDate.getTime())) {
+    throw new Error('Invalid date format');
+  }
+
+  let month = inputDate.getMonth();
+  let year = inputDate.getFullYear();
+
+  while (true) {
+    const candidateDate = new Date(year, month, 13);
+    if (candidateDate.getDay() === 5 && candidateDate > inputDate) {
+      return candidateDate;
+    }
+    month += 1;
+    if (month > 11) {
+      month = 0;
+      year += 1;
+    }
+  }
 }
 
 /**
